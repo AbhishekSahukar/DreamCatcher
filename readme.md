@@ -28,13 +28,14 @@ cd DreamCatcher
 cd backend
 pip install -r requirements.txt
 python -m uvicorn app.main:app --reload
+```
 
 ## 3.Start the frontend
 ```
 cd frontend
 npm install
 npm run dev 
-
+```
 
 ### *Screenshots*
 
