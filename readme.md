@@ -24,14 +24,14 @@ git clone https://github.com/AbhishekSahukar/DreamCatcher.git
 cd DreamCatcher
 
 ## 2.Start the backend
-cd backend
-pip install -r requirements.txt
-python -m uvicorn app.main:app --reload
+# cd backend
+# pip install -r requirements.txt
+# python -m uvicorn app.main:app --reload
 
 ## 3.Start the frontend
-cd frontend
-npm install
-npm run dev
+# cd frontend
+# npm install
+# npm run dev
 
 
 ### *Screenshots*
