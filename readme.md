@@ -1,6 +1,6 @@
-### *DreamBot – AI-Powered Dream Interpretation Chatbot*
+### *DreamCatcher – AI-Powered Dream Interpretation Chatbot*
 
-DreamBot is a minimal and elegant full-stack web app that interprets user dreams in real-time. Built with **FastAPI** and **React (Vite)**, and powered by **Tavily Web Search**, it fetches live symbolic meanings instead of using static datasets.
+DreamCatcher is a minimal and elegant full-stack web app that interprets user dreams in real-time. Built with **FastAPI** and **React (Vite)**, and powered by **Tavily Web Search**, it fetches live symbolic meanings instead of using static datasets.
 
 ### *Features*
 - Real-time dream analysis using Tavily API.
@@ -20,8 +20,8 @@ DreamBot is a minimal and elegant full-stack web app that interprets user dreams
 ### *Getting Started*
 
 ## 1.Clone the repo
-git clone https://github.com/AbhishekSahukar/Dreambot.git
-cd Dreambot
+git clone https://github.com/AbhishekSahukar/DreamCatcher.git
+cd DreamCatcher
 
 ## 2.Start the backend
 cd backend
