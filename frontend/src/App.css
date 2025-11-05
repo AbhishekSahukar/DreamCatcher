@@ -1,16 +1,20 @@
 /* App.css */
 
-/* Container for full layout */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(to bottom right, #4a90e2, #0052d4);
+  min-height: 100vh;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 40px 20px;
-  height: 100%;
   box-sizing: border-box;
 }
 
-/* Title above the chatbox */
 .title {
   font-size: 2.5rem;
   font-weight: bold;
@@ -25,8 +29,8 @@
 /* Chat container */
 .chat-container {
   width: 100%;
-  max-width: 800px;
-  flex-grow: 1;
+  max-width: 1000px;
+  min-height: 350px;
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.1);
@@ -45,6 +49,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: 300px;
+  margin-bottom: 10px;
 }
 
 /* Individual messages */
@@ -106,13 +112,24 @@
   background-color: #005bb5;
 }
 
-/* Typing animation */
-.typing {
-  font-style: italic;
-  opacity: 0.7;
+.download-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+  align-self: flex-end;
+  width: fit-content;
+}
+.download-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #00f2fe, #4facfe);
 }
 
-/* Fade-in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;

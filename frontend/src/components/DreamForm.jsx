@@ -1,66 +1,68 @@
-// src/components/DreamForm.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import { saveAs } from "file-saver";
 import "../App.css";
 
 export default function DreamForm() {
-  const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useState([
-    { sender: "bot", text: "Hello! I am DreamCatcher. Tell me your dream and I will dive in deep and Interpret it for you 🌟" },
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [dream, setDream] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userInput.trim()) return;
+  // 🔮 Analyze dream
+  const analyzeDream = async () => {
+    if (!dream.trim()) return;
+    setLoading(true);
+    const res = await fetch("http://localhost:8000/analyse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dream }),
+    });
+    const data = await res.json();
+    setResponse(data.interpretation);
+    setLoading(false);
+  };
 
-    const updatedMessages = [...messages, { sender: "user", text: userInput }];
-    setMessages(updatedMessages);
-    setUserInput("");
-    setIsTyping(true);
-
-    try {
-      const res = await axios.post("http://localhost:8000/analyse", {
-        dream: userInput,
-      });
-      const botReply = res.data.interpretation;
-      setMessages([...updatedMessages, { sender: "bot", text: botReply }]);
-    } catch (error) {
-      setMessages([
-        ...updatedMessages,
-        { sender: "bot", text: "Something went wrong. Try again." },
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
+  // 🧾 Download as PDF
+  const downloadPDF = async () => {
+    const res = await fetch("http://localhost:8000/download-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dream }),
+    });
+    const blob = await res.blob();
+    saveAs(blob, "dream_interpretation.pdf");
   };
 
   return (
+  <div className="app-container">
+  
+
     <div className="chat-container">
       <div className="chat-messages">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`chat-message ${msg.sender === "user" ? "user" : "bot"}`}
-          >
-            {msg.text}
+        {response && (
+          <div className="chat-message bot">
+            <strong>Interpretation:</strong> {response}
           </div>
-        ))}
-
-        {isTyping && (
-          <div className="chat-message bot typing">DreamBot is thinking...</div>
         )}
       </div>
 
-      <form className="input-area" onSubmit={handleSubmit}>
+      {response && (
+        <button onClick={downloadPDF} className="download-btn">
+          Download as PDF
+        </button>
+      )}
+
+      <div className="input-area">
         <input
           type="text"
+          value={dream}
+          onChange={(e) => setDream(e.target.value)}
           placeholder="Describe your dream..."
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
         />
-        <button type="submit">Send</button>
-      </form>
+        <button onClick={analyzeDream} disabled={loading}>
+          {loading ? "Interpreting..." : "Send"}
+        </button>
+      </div>
     </div>
-  );
+  </div>
+);
 }
