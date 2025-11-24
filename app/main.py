@@ -2,10 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel 
 from app.interpreter import interpret_dream
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 app = FastAPI()
 
-# ✅ Add CORS middleware for local dev
+
+app.mount("/assets", StaticFiles(directory="app/static/assets"), name="assets")
+
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -31,3 +38,7 @@ async def analyze_dream(data: DreamInput):
         traceback.print_exc()
         raise e
 
+# Serve React index.html for frontend UI
+@app.get("/")
+def serve_frontend():
+    return FileResponse("app/templates/index.html")
