@@ -20,7 +20,7 @@ export default function DreamForm() {
     setIsTyping(true);
 
     try {
-      const res = await axios.post("http://localhost:8000/analyse", {
+      const res = await axios.post("/analyse", {
         dream: userInput,
       });
       const botReply = res.data.interpretation;
