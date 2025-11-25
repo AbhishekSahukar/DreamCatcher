@@ -8,3 +8,4 @@ python-dotenv
 pydantic
 langchain_community
 axios
+langchain-openai
