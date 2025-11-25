@@ -38,7 +38,7 @@ async def analyze_dream(data: DreamInput):
         traceback.print_exc()
         raise e
 
-# Serve React index.html for frontend UI
+
 @app.get("/")
 def serve_frontend():
     return FileResponse("app/templates/index.html")
