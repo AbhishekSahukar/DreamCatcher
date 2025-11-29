@@ -3,8 +3,8 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - deploy/setup
       - main
+      - deploy/setup
 
 jobs:
   build:
@@ -31,5 +31,4 @@ jobs:
         with:
           context: .
           push: true
-          no-cache: true
           tags: ${{ secrets.DOCKER_USERNAME }}/dreamcatcher:latest

@@ -6,9 +6,17 @@ import "../App.css";
 export default function DreamForm() {
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "Hello! I am DreamCatcher. Tell me your dream and I will dive in deep and Interpret it for you 🌟" },
+    {
+      sender: "bot",
+      text:
+        "Hello! I am DreamCatcher. Tell me your dream and I will dive in deep and Interpret it for you 🌟",
+    },
   ]);
+
   const [isTyping, setIsTyping] = useState(false);
+
+  // Read backend URL from injected runtime env
+  const API_BASE = window.__ENV__?.API_BASE;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,12 +28,16 @@ export default function DreamForm() {
     setIsTyping(true);
 
     try {
-      const res = await axios.post("/analyse", {
+      const res = await axios.post(`${API_BASE}/analyse`, {
         dream: userInput,
       });
+
       const botReply = res.data.interpretation;
+
       setMessages([...updatedMessages, { sender: "bot", text: botReply }]);
     } catch (error) {
+      console.error("API Error:", error);
+
       setMessages([
         ...updatedMessages,
         { sender: "bot", text: "Something went wrong. Try again." },
@@ -48,7 +60,9 @@ export default function DreamForm() {
         ))}
 
         {isTyping && (
-          <div className="chat-message bot typing">DreamBot is thinking...</div>
+          <div className="chat-message bot typing">
+            DreamCatcher is thinking...
+          </div>
         )}
       </div>
 
@@ -59,6 +73,7 @@ export default function DreamForm() {
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
         />
+
         <button type="submit">Send</button>
       </form>
     </div>

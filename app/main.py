@@ -6,10 +6,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 
+os.makedirs("app/static/assets", exist_ok=True)
+os.makedirs("app/templates", exist_ok=True)
 app = FastAPI()
 
 
 app.mount("/assets", StaticFiles(directory="app/static/assets"), name="assets")
+
 
 
 
