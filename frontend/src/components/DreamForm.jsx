@@ -15,8 +15,11 @@ export default function DreamForm() {
 
   const [isTyping, setIsTyping] = useState(false);
 
-  // Read backend URL from injected runtime env
-  const API_BASE = window.__ENV__?.API_BASE;
+  // 💡 Runtime backend URL resolution
+  const API_BASE =
+    window.__ENV__?.API_BASE && window.__ENV__.API_BASE.trim() !== ""
+      ? window.__ENV__.API_BASE
+      : window.location.origin;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +36,6 @@ export default function DreamForm() {
       });
 
       const botReply = res.data.interpretation;
-
       setMessages([...updatedMessages, { sender: "bot", text: botReply }]);
     } catch (error) {
       console.error("API Error:", error);
