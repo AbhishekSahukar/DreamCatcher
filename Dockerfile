@@ -43,8 +43,6 @@ COPY --from=frontend-builder /frontend/dist/assets /app/static/assets
 
 RUN echo 'window.__ENV__ = { API_BASE: window.location.origin };' > /app/static/assets/env.js
 
-
 EXPOSE 8000
-
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
