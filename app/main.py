@@ -1,27 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from dotenv import load_dotenv
-import traceback
-from app.interpreter import interpret_dream
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
+from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
 
-os.makedirs("app/static/assets", exist_ok=True)
-os.makedirs("app/templates", exist_ok=True)
+from app.models import DreamRequest
+from app.interpreter import interpret_dream
+
 app = FastAPI()
 
-
-app.mount("/assets", StaticFiles(directory="app/static/assets"), name="assets")
-
-
-
-
-load_dotenv()
-
-app = FastAPI(title="DreamCatcher API")
-
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,26 +18,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Static + templates
+app.mount(
+    "/assets",
+    StaticFiles(directory="app/static/assets"),
+    name="assets"
+)
 
-class DreamInput(BaseModel):
-    dream: str
-
-
-class InterpretationOutput(BaseModel):
-    interpretation: str
+templates = Jinja2Templates(directory="app/templates")
 
 
 @app.get("/")
-def health_check():
-    return {"status": "DreamCatcher API is running"}
+@app.head("/")
+async def root(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request}
+    )
 
 
-@app.post("/analyse", response_model=InterpretationOutput)
-async def analyze_dream(data: DreamInput):
-    if not data.dream.strip():
-        raise HTTPException(status_code=400, detail="Dream description cannot be empty.")
-    try:
-        interpretation = interpret_dream(data.dream)
-        return {"interpretation": interpretation}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.post("/analyse")
+async def analyse_dream(data: DreamRequest):
+
+    interpretation = interpret_dream(data.dream)
+
+    return JSONResponse(
+        content={
+            "interpretation": interpretation
+        }
+    )

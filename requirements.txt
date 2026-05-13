@@ -5,5 +5,4 @@ langchain-openai
 python-dotenv
 pydantic
 langchain_community
-axios
-langchain-openai
+jinja2

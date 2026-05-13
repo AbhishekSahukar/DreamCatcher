@@ -1,52 +1,58 @@
-# 1️⃣ FRONTEND BUILD (React + Vite)
+# =========================
+# 1️⃣ FRONTEND BUILD
+# =========================
 FROM node:20 AS frontend-builder
 
 WORKDIR /frontend
 
-# Install deps
 COPY frontend/package*.json ./
+
 RUN npm install
 
-# Build frontend
 COPY frontend/ ./
+
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN npm run build
 
 
-# 2️⃣ BACKEND BUILD (FastAPI)
+# =========================
+# 2️⃣ BACKEND BUILD
+# =========================
 FROM python:3.11-slim AS backend-builder
 
 WORKDIR /app
 
 COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
 
 
-# 3️⃣ FINAL IMAGE (Serve React + API)
+# =========================
+# 3️⃣ FINAL IMAGE
+# =========================
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy backend dependencies installed in previous stage
+# Copy installed python packages
 COPY --from=backend-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=backend-builder /usr/local/bin /usr/local/bin
 
-# Copy backend source
+# Copy backend
 COPY app/ ./app/
 
-# Ensure required folders exist
-RUN mkdir -p app/templates && mkdir -p app/static/assets
+# Create folders
+RUN mkdir -p app/templates
+RUN mkdir -p app/static/assets
 
-# Copy built frontend
+# Copy frontend build
 COPY --from=frontend-builder /frontend/dist/index.html app/templates/index.html
 COPY --from=frontend-builder /frontend/dist/assets/ app/static/assets/
 
-# Copy env.js from Vite public → dist → container
-COPY --from=frontend-builder /frontend/dist/env.js app/static/assets/env.js
-
-# Expose port
 EXPOSE 8000
 
-# Start backend
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
