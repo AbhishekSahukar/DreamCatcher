@@ -34,8 +34,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Generated files
-project_tree.txt
 
 repo_part1.txt
 repo_part2.txt
