@@ -32,10 +32,10 @@ templates = Jinja2Templates(directory="app/templates")
 @app.head("/")
 async def root(request: Request):
     return templates.TemplateResponse(
-        "index.html",
-        {"request": request}
+        request=request,
+        name="index.html",
+        context={}
     )
-
 
 @app.post("/analyse")
 async def analyse_dream(data: DreamRequest):
