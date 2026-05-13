@@ -9,12 +9,8 @@ export default function DreamForm() {
   const [messages, setMessages] = useState([
     {
       sender: "bot",
-<<<<<<< HEAD
       text:
-        "Hello! I am DreamCatcher. Tell me your dream and I will dive in deep and Interpret it for you 🌟",
-=======
-      text: "Hello! I am DreamCatcher. Tell me your dream and I will interpret it for you 🌙",
->>>>>>> 142df6a (Readme and code fix)
+        "Hello! I am DreamCatcher. Tell me your dream and I will interpret it for you 🌙",
     },
   ]);
 
@@ -25,40 +21,46 @@ export default function DreamForm() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // 💡 Runtime backend URL resolution
+  // Runtime backend URL resolution
   const API_BASE =
     window.__ENV__?.API_BASE && window.__ENV__.API_BASE.trim() !== ""
       ? window.__ENV__.API_BASE
-      : window.location.origin;
+      : API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!userInput.trim()) return;
 
-    const updatedMessages = [...messages, { sender: "user", text: userInput }];
+    const updatedMessages = [
+      ...messages,
+      { sender: "user", text: userInput },
+    ];
+
     setMessages(updatedMessages);
     setUserInput("");
     setIsTyping(true);
 
     try {
-<<<<<<< HEAD
       const res = await axios.post(`${API_BASE}/analyse`, {
         dream: userInput,
       });
 
       const botReply = res.data.interpretation;
-      setMessages([...updatedMessages, { sender: "bot", text: botReply }]);
+
+      setMessages([
+        ...updatedMessages,
+        { sender: "bot", text: botReply },
+      ]);
     } catch (error) {
       console.error("API Error:", error);
 
-=======
-      const res = await axios.post(`${API_URL}/analyse`, { dream: userInput });
-      setMessages([...updatedMessages, { sender: "bot", text: res.data.interpretation }]);
-    } catch {
->>>>>>> 142df6a (Readme and code fix)
       setMessages([
         ...updatedMessages,
-        { sender: "bot", text: "Something went wrong. Please try again." },
+        {
+          sender: "bot",
+          text: "Something went wrong. Please try again.",
+        },
       ]);
     } finally {
       setIsTyping(false);
@@ -69,19 +71,22 @@ export default function DreamForm() {
     <div className="chat-container">
       <div className="chat-messages">
         {messages.map((msg, idx) => (
-          <div key={idx} className={`chat-message ${msg.sender === "user" ? "user" : "bot"}`}>
+          <div
+            key={idx}
+            className={`chat-message ${
+              msg.sender === "user" ? "user" : "bot"
+            }`}
+          >
             {msg.text}
           </div>
         ))}
+
         {isTyping && (
-<<<<<<< HEAD
           <div className="chat-message bot typing">
             DreamCatcher is thinking...
           </div>
-=======
-          <div className="chat-message bot typing">DreamCatcher is thinking...</div>
->>>>>>> 142df6a (Readme and code fix)
         )}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -93,14 +98,10 @@ export default function DreamForm() {
           onChange={(e) => setUserInput(e.target.value)}
           disabled={isTyping}
         />
-<<<<<<< HEAD
 
-        <button type="submit">Send</button>
-=======
         <button type="submit" disabled={isTyping}>
           Send
         </button>
->>>>>>> 142df6a (Readme and code fix)
       </form>
     </div>
   );
