@@ -1,6 +1,12 @@
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from app.llm import get_llm
 from app.search import search_dream_symbols
+from app.intent import detect_intent
+
+def interpret_dream(user_message: str) -> str:
+
+    intent = detect_intent(user_message)
+
 
 def interpret_dream(user_dream: str) -> str:
 

@@ -1,0 +1,40 @@
+D:/Docs/Jobs/Projects/Updated Projects/DreamCatcher
+├── app
+│   ├── interpreter.py
+│   ├── llm.py
+│   ├── main.py
+│   └── search.py
+├── assets
+│   ├── Chat.png
+│   └── Example.png
+├── frontend
+│   ├── public
+│   │   └── vite.svg
+│   ├── src
+│   │   ├── assets
+│   │   │   └── react.svg
+│   │   ├── components
+│   │   │   ├── DreamForm.jsx
+│   │   │   └── InterpretationBubble.jsx
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .env
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   └── vite.config.js
+├── .env
+├── .gitignore
+├── package-lock.json
+├── readme.md
+├── repo_part1.txt
+├── repo_part2.txt
+├── repo_part3.txt
+├── repo_part4.txt
+├── repo_tree.txt
+└── requirements.txt

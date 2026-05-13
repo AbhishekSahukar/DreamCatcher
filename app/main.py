@@ -1,33 +1,55 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel 
+from pydantic import BaseModel
+from dotenv import load_dotenv
+import traceback
 from app.interpreter import interpret_dream
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
+os.makedirs("app/static/assets", exist_ok=True)
+os.makedirs("app/templates", exist_ok=True)
 app = FastAPI()
 
-# ✅ Add CORS middleware for local dev
+
+app.mount("/assets", StaticFiles(directory="app/static/assets"), name="assets")
+
+
+
+
+load_dotenv()
+
+app = FastAPI(title="DreamCatcher API")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 class DreamInput(BaseModel):
     dream: str
 
+
 class InterpretationOutput(BaseModel):
-    interpretation: str 
+    interpretation: str
+
+
+@app.get("/")
+def health_check():
+    return {"status": "DreamCatcher API is running"}
+
 
 @app.post("/analyse", response_model=InterpretationOutput)
 async def analyze_dream(data: DreamInput):
+    if not data.dream.strip():
+        raise HTTPException(status_code=400, detail="Dream description cannot be empty.")
     try:
         interpretation = interpret_dream(data.dream)
         return {"interpretation": interpretation}
     except Exception as e:
-        import traceback
-        print("🔥 Error during interpretation:", str(e))
-        traceback.print_exc()
-        raise e
-
+        raise HTTPException(status_code=500, detail=str(e))

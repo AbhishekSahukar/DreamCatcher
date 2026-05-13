@@ -1,10 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
 tavily-python
-langchain
-langgraph
-openai
+langchain-openai
 python-dotenv
 pydantic
 langchain_community
 axios
+langchain-openai
