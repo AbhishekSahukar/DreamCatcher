@@ -1,34 +1,41 @@
 # Python
-__pycache__/
-*.py[cod]
-*.sqlite3
-*.log
-.venv/
-env/
-*.env
-.DS_Store
-venv 
 venv/
 .venv/
 __pycache__/
 *.pyc
-node_modules/
-dist/
-build/
+*.pyo
+*.pyd
+.python-version
 .env
 
-# Node/React/Vite
-node_modules/
-dist/
-build/
-*.local
-*.lock
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# System
-*.swp
-*.bak
-Thumbs.db
-.vscode/
+# Node
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Generated files
+project_tree.txt
 
 repo_part1.txt
 repo_part2.txt
