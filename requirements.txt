@@ -4,10 +4,6 @@ tavily-python
 langchain-openai
 python-dotenv
 pydantic
-<<<<<<< HEAD
 langchain_community
 axios
 langchain-openai
-=======
- 
->>>>>>> 142df6a (Readme and code fix)
