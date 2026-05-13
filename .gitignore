@@ -6,13 +6,8 @@ __pycache__/
 .venv/
 env/
 *.env
-.env
 .DS_Store
-.env.dev
-
-# FastAPI build output (Render will re-create these)
-app/static/
-app/templates/
+venv 
 
 # Node/React/Vite
 node_modules/
@@ -27,10 +22,8 @@ build/
 Thumbs.db
 .vscode/
 
-# Project utility / split files
-split.py
-repo1.txt
-repo2.txt
-repo3.txt
-repo4.txt
-
+repo_part1.txt
+repo_part2.txt
+repo_part3.txt
+repo_part4.txt
+repo_tree.txt

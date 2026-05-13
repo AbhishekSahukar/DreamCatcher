@@ -1,0 +1,163 @@
+================================================================================
+FILE: D:/Docs/Jobs/Projects/Updated Projects/DreamCatcher\readme.md
+================================================================================
+### *DreamCatcher – AI-Powered Dream Interpretation Chatbot*
+
+DreamCatcher is a minimal and elegant full-stack web app that interprets user dreams in real-time. Built with **FastAPI** and **React (Vite)**, and powered by **Tavily Web Search**, it fetches live symbolic meanings instead of using static datasets.
+
+### *Features*
+- Real-time dream analysis using Tavily API.
+- Searches symbolic dream meanings dynamically from the web.
+- Fast, responsive UI (Vite + React)
+- Modern and User-friendly UI with gradients and glassmorphism.
+
+### *Tech Stack*
+
+| Layer      | Technology                  |
+|------------|-----------------------------|
+| Frontend   | React + Vite                |
+| Backend    | FastAPI                     |
+| Search     | Tavily Web Search API       |
+| Styling    | CSS3                        |
+
+### *Getting Started*
+
+## 1.Clone the repo
+git clone https://github.com/AbhishekSahukar/DreamCatcher.git
+cd DreamCatcher
+
+## 2.Start the backend
+```
+cd backend
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
+```
+
+## 3.Start the frontend
+```
+cd frontend
+npm install
+npm run dev 
+```
+
+### *Screenshots*
+
+## Chat Interface
+![Chat-UI](./assets/Chat.png)
+
+## Example prompt
+![Example](./assets/Example.png)
+
+### *License*
+MIT – feel free to use, fork, or build upon.
+
+### *Author*
+Abhishek Sahukar Srinivas
+
+
+
+
+
+
+================================================================================
+FILE: D:/Docs/Jobs/Projects/Updated Projects/DreamCatcher\requirements.txt
+================================================================================
+fastapi
+uvicorn[standard]
+tavily-python
+langchain-openai
+python-dotenv
+pydantic
+ 
+
+
+================================================================================
+FILE: D:/Docs/Jobs/Projects/Updated Projects/DreamCatcher\app\interpreter.py
+================================================================================
+from langchain_core.messages import HumanMessage
+from app.llm import get_llm
+from app.search import search_dream_symbols
+
+
+def interpret_dream(user_dream: str) -> str:
+    search_context = search_dream_symbols(user_dream)
+
+    prompt = (
+        "You are a gentle AI dream psychologist with deep knowledge of dream symbolism and psychology.\n\n"
+        f"The user described this dream:\n\n{user_dream}\n\n"
+        f"Here are some symbolic interpretations from online sources:\n\n{search_context}\n\n"
+        "Based on the dream and the symbols, give a thoughtful, non-clinical interpretation. "
+        "Use symbolic language, avoid diagnosing, and keep it warm and supportive."
+    )
+
+    llm = get_llm()
+    response = llm.invoke([HumanMessage(content=prompt)])
+    return response.content.strip()
+
+
+================================================================================
+FILE: D:/Docs/Jobs/Projects/Updated Projects/DreamCatcher\app\llm.py
+================================================================================
+import os
+from langchain_openai import ChatOpenAI
+
+
+def get_llm():
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key:
+        raise ValueError("OPENROUTER_API_KEY is not set. Check your .env file.")
+
+    return ChatOpenAI(
+        openai_api_key=api_key,
+        base_url="https://openrouter.ai/api/v1",
+        model="mistralai/mixtral-8x7b-instruct",
+        temperature=float(os.getenv("OPENROUTER_TEMPERATURE", "0.7")),
+    )
+
+
+================================================================================
+FILE: D:/Docs/Jobs/Projects/Updated Projects/DreamCatcher\app\main.py
+================================================================================
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from dotenv import load_dotenv
+from app.interpreter import interpret_dream
+
+load_dotenv()
+
+app = FastAPI(title="DreamCatcher API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class DreamInput(BaseModel):
+    dream: str
+
+
+class InterpretationOutput(BaseModel):
+    interpretation: str
+
+
+@app.get("/")
+def health_check():
+    return {"status": "DreamCatcher API is running"}
+
+
+@app.post("/analyse", response_model=InterpretationOutput)
+async def analyze_dream(data: DreamInput):
+    if not data.dream.strip():
+        raise HTTPException(status_code=400, detail="Dream description cannot be empty.")
+    try:
+        interpretation = interpret_dream(data.dream)
+        return {"interpretation": interpretation}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
