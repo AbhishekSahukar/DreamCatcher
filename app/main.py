@@ -1,15 +1,15 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
-from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from dotenv import load_dotenv, find_dotenv
+import traceback
 
-from app.models import DreamRequest
+load_dotenv(find_dotenv(usecwd=True))
+
 from app.interpreter import interpret_dream
 
-app = FastAPI()
+app = FastAPI(title="DreamCatcher API")
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,32 +18,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Static + templates
-app.mount(
-    "/assets",
-    StaticFiles(directory="app/static/assets"),
-    name="assets"
-)
 
-templates = Jinja2Templates(directory="app/templates")
+class DreamInput(BaseModel):
+    dream: str
+
+
+class InterpretationOutput(BaseModel):
+    interpretation: str
 
 
 @app.get("/")
-@app.head("/")
-async def root(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={}
-    )
+def health_check():
+    return {"status": "DreamCatcher API is running"}
 
-@app.post("/analyse")
-async def analyse_dream(data: DreamRequest):
 
-    interpretation = interpret_dream(data.dream)
-
-    return JSONResponse(
-        content={
-            "interpretation": interpretation
-        }
-    )
+@app.post("/analyse", response_model=InterpretationOutput)
+async def analyse_dream(data: DreamInput):
+    if not data.dream.strip():
+        raise HTTPException(status_code=400, detail="Dream description cannot be empty.")
+    try:
+        interpretation = interpret_dream(data.dream)
+        return {"interpretation": interpretation}
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
