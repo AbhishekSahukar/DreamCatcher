@@ -54,25 +54,22 @@ async def analyse_dream(data: DreamInput):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# =========================
+# Frontend Static Files
+# =========================
 
-FRONTEND_DIR = Path(__file__).parent.parent / "frontend" / "dist"
+BASE_DIR = Path(__file__).resolve().parent
 
-if FRONTEND_DIR.exists():
+app.mount(
+    "/assets",
+    StaticFiles(directory=BASE_DIR / "static" / "assets"),
+    name="assets",
+)
 
-    app.mount(
-        "/assets",
-        StaticFiles(directory=FRONTEND_DIR / "assets"),
-        name="assets",
-    )
 
-    @app.get("/{full_path:path}", include_in_schema=False)
-    async def serve_react_app(full_path: str):
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_frontend(full_path: str):
 
-        requested_path = FRONTEND_DIR / full_path
+    index_file = BASE_DIR / "templates" / "index.html"
 
-        # Serve actual files if they exist
-        if requested_path.exists() and requested_path.is_file():
-            return FileResponse(requested_path)
-
-        # Otherwise return React app
-        return FileResponse(FRONTEND_DIR / "index.html")
+    return FileResponse(index_file)
