@@ -1,34 +1,24 @@
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import HumanMessage
 from app.llm import get_llm
 
-def detect_intent(user_text: str) -> str:
-    """
-    Simple and accurate intent classifier.
-    ONLY two intents:
-      - dream_description
-      - general_chat
-    """
 
+def is_dream(user_input: str) -> bool:
     llm = get_llm()
 
-    system = SystemMessage(
-        content=(
-            "You are an intent classifier. Classify the user message into EXACTLY one intent:\n\n"
-            "1. dream_description → The user is describing a sleep dream (something that happened while sleeping). "
-            "This includes dream scenes, places, people, animals, feelings, events, nightmares, etc.\n\n"
-            "2. general_chat → Greetings, normal conversation, questions, goals, ambitions, hopes, "
-            "or anything that is NOT a sleep dream.\n\n"
-            "IMPORTANT:\n"
-            "- DO NOT mistake goals, future plans, or ambitions for dreams. Only classify dream scenes experienced during sleep as 'dream_description'.\n"
-            "- DO NOT classify motivation/aspiration as dreams.\n"
-            "- Use only semantic meaning.\n"
-            "- Output ONLY the intent name."
-        )
+    prompt = (
+        "Your only job is to decide if the user's message describes a dream they had while sleeping.\n"
+        "Reply with only YES or NO. Nothing else.\n\n"
+        "Examples:\n"
+        "- 'I was flying over mountains' → YES\n"
+        "- 'I saw my dead grandmother in a forest' → YES\n"
+        "- 'hi' → NO\n"
+        "- 'what is the weather' → NO\n"
+        "- 'I dreamed I was being chased' → YES\n"
+        "- 'tell me a joke' → NO\n\n"
+        f"User message: {user_input}\n"
+        "Answer (YES or NO):"
     )
 
-    res = llm.invoke([
-        system,
-        HumanMessage(content=user_text)
-    ])
-
-    return res.content.strip()
+    response = llm.invoke([HumanMessage(content=prompt)])
+    answer = response.content.strip().upper()
+    return answer.startswith("YES")
