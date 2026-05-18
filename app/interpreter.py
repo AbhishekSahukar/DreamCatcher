@@ -1,16 +1,18 @@
+from typing import Generator
 from langchain_core.messages import HumanMessage
 from app.llm import get_llm
 from app.search import search_dream_symbols
 from app.intent import is_dream
 
 
-def interpret_dream(user_dream: str) -> str:
+def stream_interpret_dream(user_dream: str) -> Generator[str, None, None]:
     if not is_dream(user_dream):
-        return (
+        yield (
             "I'm DreamCatcher — I can only interpret dreams. 🌙\n"
             "Try describing something you experienced while sleeping, "
             "like 'I was flying over a city' or 'I dreamed I was being chased through a forest'."
         )
+        return
 
     search_context = search_dream_symbols(user_dream)
 
@@ -23,5 +25,6 @@ def interpret_dream(user_dream: str) -> str:
     )
 
     llm = get_llm()
-    response = llm.invoke([HumanMessage(content=prompt)])
-    return response.content.strip()
+    for chunk in llm.stream([HumanMessage(content=prompt)]):
+        if chunk.content:
+            yield chunk.content

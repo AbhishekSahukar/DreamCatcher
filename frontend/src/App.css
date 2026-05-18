@@ -164,3 +164,28 @@ html, body, #root {
     max-width: 95%;
   }
 }
+
+/* Blinking cursor during streaming */
+.cursor {
+  display: inline-block;
+  animation: blink 0.7s step-end infinite;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Interpreting status label */
+.status-label {
+  font-style: italic;
+  opacity: 0.75;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 0.3; }
+}

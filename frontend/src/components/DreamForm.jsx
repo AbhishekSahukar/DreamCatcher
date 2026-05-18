@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
 import "../App.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
@@ -9,84 +8,90 @@ export default function DreamForm() {
   const [messages, setMessages] = useState([
     {
       sender: "bot",
-      text:
-        "Hello! I am DreamCatcher. Tell me your dream and I will interpret it for you 🌙",
+      text: "Hello! I am DreamCatcher. Tell me your dream and I will interpret it for you 🌙",
     },
   ]);
-
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
-
-  // Runtime backend URL resolution
-  const API_BASE =
-    window.__ENV__?.API_BASE && window.__ENV__.API_BASE.trim() !== ""
-      ? window.__ENV__.API_BASE
-      : API_URL;
+  }, [messages]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!userInput.trim() || isTyping) return;
 
-    if (!userInput.trim()) return;
+    const userMessage = { sender: "user", text: userInput };
+    const botMessage = { sender: "bot", text: "" };
 
-    const updatedMessages = [
-      ...messages,
-      { sender: "user", text: userInput },
-    ];
-
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, userMessage, botMessage]);
     setUserInput("");
     setIsTyping(true);
 
     try {
-      const res = await axios.post(`${API_BASE}/analyse`, {
-        dream: userInput,
+      const res = await fetch(`${API_URL}/analyse`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dream: userInput }),
       });
 
-      const botReply = res.data.interpretation;
+      if (!res.ok) throw new Error("Server error");
 
-      setMessages([
-        ...updatedMessages,
-        { sender: "bot", text: botReply },
-      ]);
-    } catch (error) {
-      console.error("API Error:", error);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
-      setMessages([
-        ...updatedMessages,
-        {
-          sender: "bot",
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            text: updated[updated.length - 1].text + chunk,
+          };
+          return updated;
+        });
+      }
+    } catch {
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          ...updated[updated.length - 1],
           text: "Something went wrong. Please try again.",
-        },
-      ]);
+        };
+        return updated;
+      });
     } finally {
       setIsTyping(false);
     }
   };
 
+  const lastMessage = messages[messages.length - 1];
+  const isStreaming = isTyping && lastMessage?.sender === "bot";
+  const isWaiting = isStreaming && lastMessage?.text === "";
+
   return (
     <div className="chat-container">
       <div className="chat-messages">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`chat-message ${
-              msg.sender === "user" ? "user" : "bot"
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
+        {messages.map((msg, idx) => {
+          const isLastBot = idx === messages.length - 1 && msg.sender === "bot";
+          const showStatus = isLastBot && isStreaming;
 
-        {isTyping && (
-          <div className="chat-message bot typing">
-            DreamCatcher is thinking...
-          </div>
-        )}
-
+          return (
+            <div
+              key={idx}
+              className={`chat-message ${msg.sender === "user" ? "user" : "bot"}`}
+            >
+              {showStatus && isWaiting ? (
+                <span className="status-label">Interpreting your dream...</span>
+              ) : (
+                msg.text
+              )}
+            </div>
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
@@ -98,9 +103,8 @@ export default function DreamForm() {
           onChange={(e) => setUserInput(e.target.value)}
           disabled={isTyping}
         />
-
         <button type="submit" disabled={isTyping}>
-          Send
+          {isTyping ? "..." : "Send"}
         </button>
       </form>
     </div>
