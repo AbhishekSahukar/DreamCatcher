@@ -2,26 +2,22 @@ from typing import Generator
 from langchain_core.messages import HumanMessage
 from app.llm import get_llm
 from app.search import search_dream_symbols
-from app.intent import is_dream
 
 
 def stream_interpret_dream(user_dream: str) -> Generator[str, None, None]:
-    if not is_dream(user_dream):
-        yield (
-            "I'm DreamCatcher — I can only interpret dreams. 🌙\n"
-            "Try describing something you experienced while sleeping, "
-            "like 'I was flying over a city' or 'I dreamed I was being chased through a forest'."
-        )
-        return
-
     search_context = search_dream_symbols(user_dream)
 
     prompt = (
-        "You are a gentle AI dream psychologist with deep knowledge of dream symbolism and psychology.\n\n"
-        f"The user described this dream:\n\n{user_dream}\n\n"
-        f"Here are some symbolic interpretations from online sources:\n\n{search_context}\n\n"
-        "Based on the dream and the symbols, give a thoughtful, non-clinical interpretation. "
-        "Use symbolic language, avoid diagnosing, and keep it warm and supportive."
+        "You are DreamCatcher, a warm and gentle AI dream interpreter.\n\n"
+        "First, decide if the user's message describes a dream they had while sleeping.\n\n"
+        "If it is NOT a dream (e.g. greetings, questions, random text), respond only with:\n"
+        "'I can only interpret dreams. Try describing something you experienced while sleeping, "
+        "like: I was flying over a city, or I dreamed I was being chased.'\n\n"
+        "If it IS a dream, give a thoughtful, symbolic, and warm interpretation based on the dream "
+        "and the following context from online sources:\n\n"
+        f"{search_context}\n\n"
+        "Avoid clinical language. Be supportive and use symbolic meaning.\n\n"
+        f"User message: {user_dream}"
     )
 
     llm = get_llm()

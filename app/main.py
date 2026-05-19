@@ -39,7 +39,11 @@ async def analyse_dream(data: DreamInput):
     try:
         return StreamingResponse(
             stream_interpret_dream(data.dream),
-            media_type="text/plain"
+            media_type="text/plain",
+            headers={
+                "X-Accel-Buffering": "no",   # disables Render/nginx buffering
+                "Cache-Control": "no-cache",
+            }
         )
     except Exception as e:
         traceback.print_exc()
